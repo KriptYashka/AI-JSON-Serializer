@@ -95,6 +95,7 @@ async def run_pipeline(
         return await _generate(headers, schema, cheap_profile)
 
     prev_feedback = ""
+    mapping = []
     for round_num in range(1, max_rounds + 1):
         print(f"  [раунд {round_num}] Генерация…")
         feedback = prev_feedback

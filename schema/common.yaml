@@ -16,12 +16,6 @@ columns:
   - name: quantity
     type: integer
     description: Доступное количество / остаток
-  - name: unit
-    type: string
-    description: Единица измерения (шт, кг, м…)
-  - name: category
-    type: string
-    description: Категория товара
   - name: brand
     type: string
     description: Бренд / производитель

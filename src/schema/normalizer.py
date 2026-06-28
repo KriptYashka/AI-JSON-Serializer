@@ -1,7 +1,8 @@
 from pathlib import Path
 from typing import Any
-from openpyxl import load_workbook, Workbook
+from openpyxl import Workbook
 
+from src.excel_reader import read_excel
 from src.schema.models import MappingRule, Schema
 
 
@@ -14,29 +15,40 @@ class Normalizer:
     def _build_column_map(mapping: list[MappingRule]) -> dict[str, str]:
         return {r.from_.strip().lower(): r.to for r in mapping}
 
-    def normalize(self, input_path: str | Path, output_path: str | Path) -> int:
-        wb_in = load_workbook(input_path, read_only=True, data_only=True)
-        ws_in = wb_in.active
+    def normalize(
+        self,
+        input_path: str | Path,
+        output_path: str | Path,
+        header_row: int = 0,
+    ) -> int:
+        rows = read_excel(input_path)
+        raw_headers: list[str] = []
+        data_rows: list[list[Any]] = []
 
-        rows_iter = ws_in.iter_rows(values_only=True)
-        raw_headers = [str(c).strip() if c else "" for c in next(rows_iter)]
+        for i, row in enumerate(rows):
+            if i < header_row:
+                continue
+            if i == header_row:
+                raw_headers = row
+            else:
+                data_rows.append(row)
+
         header_map = self._match_headers(raw_headers)
-
         out_cols = [c.name for c in self._schema.columns]
+
         wb_out = Workbook()
         ws_out = wb_out.active
         ws_out.title = self._schema.name
         ws_out.append(out_cols)
 
         row_count = 0
-        for row in rows_iter:
-            mapped = self._transform_row(row, raw_headers, header_map, out_cols)
+        for row in data_rows:
+            mapped = self._transform_row(row, header_map, out_cols)
             if mapped is not None:
                 ws_out.append(mapped)
                 row_count += 1
 
         wb_out.save(output_path)
-        wb_in.close()
         wb_out.close()
         return row_count
 
@@ -50,15 +62,16 @@ class Normalizer:
 
     def _transform_row(
         self,
-        row: tuple[Any, ...],
-        raw_headers: list[str],
+        row: list[Any],
         header_map: dict[int, str],
         out_cols: list[str],
     ) -> list[Any] | None:
         mapped: dict[str, Any] = {}
         for col_idx, target_col in header_map.items():
             if col_idx < len(row):
-                mapped[target_col] = row[col_idx]
+                val = row[col_idx]
+                if val != "":
+                    mapped[target_col] = val
 
         for col in self._schema.columns:
             val = mapped.get(col.name)
