@@ -1,0 +1,30 @@
+name: products
+description: Единый каталог товаров
+columns:
+  - name: sku
+    type: string
+    required: true
+    description: Артикул / код товара
+  - name: name
+    type: string
+    required: true
+    description: Наименование товара
+  - name: price
+    type: number
+    required: true
+    description: Цена за единицу
+  - name: quantity
+    type: integer
+    description: Доступное количество / остаток
+  - name: unit
+    type: string
+    description: Единица измерения (шт, кг, м…)
+  - name: category
+    type: string
+    description: Категория товара
+  - name: brand
+    type: string
+    description: Бренд / производитель
+  - name: description
+    type: string
+    description: Полное описание товара

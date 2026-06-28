@@ -1,0 +1,17 @@
+[openrouter]
+# api_key — опционально, можно задать в .env как OPENROUTER_API_KEY
+base_url = https://openrouter.ai/api/v1
+timeout = 60
+default_profile = cheap
+cheap_profile = cheap
+expensive_profile = expensive
+
+[profile.cheap]
+models = openai/gpt-4o-mini, anthropic/claude-3-haiku
+temperature = 0.7
+max_tokens = 4096
+
+[profile.expensive]
+models = openai/gpt-4o, anthropic/claude-3-opus
+temperature = 0.5
+max_tokens = 8192
